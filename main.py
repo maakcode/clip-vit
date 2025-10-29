@@ -1,12 +1,12 @@
-import os
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
-
 import streamlit as st
 import torch
 import numpy as np
 import faiss
 from PIL import Image, ImageFile
 from transformers import CLIPProcessor, CLIPModel
+import os
+
+os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 
 class ClipImageSearch:
