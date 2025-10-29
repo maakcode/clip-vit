@@ -8,8 +8,6 @@ import faiss
 from PIL import Image, ImageFile
 from transformers import CLIPProcessor, CLIPModel
 
-from io import BytesIO
-
 
 class ClipImageSearch:
     def __init__(self):
