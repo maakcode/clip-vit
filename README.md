@@ -2,6 +2,8 @@
 
 Streamlit과 OpenAI의 CLIP 모델을 사용하여 텍스트로 유사 이미지를 검색하는 웹 애플리케이션입니다.
 
+<img src="https://raw.githubusercontent.com/maakcode/clip-vit/refs/heads/main/docs/1.avif" width="600" />
+
 ## 주요 기능
 
 - 여러 이미지 파일을 한 번에 업로드
