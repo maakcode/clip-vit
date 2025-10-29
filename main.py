@@ -82,7 +82,7 @@ def main():
     # ============================================
     # Streamlit UI
     # ============================================
-    st.set_page_config(page_title="Image Search", layout="wide")
+    st.set_page_config(page_title="Image Search", layout="centered")
     st.title("🔍 이미지 검색")
     st.caption("이미지를 업로드하고 텍스트로 유사한 이미지를 검색합니다.")
 
