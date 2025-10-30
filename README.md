@@ -1,6 +1,6 @@
 # CLIP을 이용한 이미지 검색
 
-Streamlit과 [OpenAI의 CLIP 모델](https://huggingface.co/openai/clip-vit-large-patch14)을 사용하여 텍스트로 유사 이미지를 검색하는 웹 애플리케이션입니다.
+[Streamlit](https://streamlit.io)과 [OpenAI의 CLIP 모델](https://huggingface.co/openai/clip-vit-large-patch14)을 사용하여 텍스트로 유사 이미지를 검색하는 웹 애플리케이션입니다.
 
 <img src="https://raw.githubusercontent.com/maakcode/clip-vit/refs/heads/main/docs/1.avif" width="600" />
 
