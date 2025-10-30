@@ -10,12 +10,13 @@ Streamlit과 OpenAI의 CLIP 모델을 사용하여 텍스트로 유사 이미지
 - FAISS를 사용하여 이미지 검색 인덱스 구축
 - 자연어(텍스트)를 이용한 이미지 검색
 - 실시간 유사도 검색 결과 확인
+- LLMTranslator를 활용한 다국어 텍스트 쿼리 지원 (ibm-granite/granite-4.0-h-micro 모델 사용)
 
 ## 동작 원리
 
 이 애플리케이션은 CLIP(Contrastive Language-Image Pre-training) 모델을 사용하여 이미지와 텍스트 쿼리의 임베딩(embedding)을 생성합니다. 이 임베딩은 이미지와 텍스트의 의미적 내용을 고차원 벡터 공간에 표현한 것입니다.
 
-생성된 이미지 임베딩은 효율적인 유사도 검색을 위해 FAISS(Facebook AI Similarity Search) 인덱스에 저장됩니다. 사용자가 텍스트 쿼리를 입력하면, 해당 텍스트의 임베딩을 계산한 후 FAISS 인덱스 내에서 가장 유사한 이미지 임베딩을 찾아 결과를 반환합니다.
+생성된 이미지 임베딩은 효율적인 유사도 검색을 위해 FAISS(Facebook AI Similarity Search) 인덱스에 저장됩니다. 사용자가 텍스트 쿼리를 입력하면, LLMTranslator (ibm-granite/granite-4.0-h-micro 모델 기반)가 해당 쿼리를 영어로 번역한 후, 번역된 텍스트의 임베딩을 계산하고 FAISS 인덱스 내에서 가장 유사한 이미지 임베딩을 찾아 결과를 반환합니다.
 
 ## 개발 환경 설정 및 실행
 
