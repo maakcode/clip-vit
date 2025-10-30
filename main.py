@@ -3,32 +3,38 @@ import torch
 import numpy as np
 import faiss
 from PIL import Image, ImageFile
-from transformers import CLIPProcessor, CLIPModel
+from transformers import (
+    CLIPProcessor,
+    CLIPModel,
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    pipeline,
+)
 import os
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class ClipImageSearch:
     def __init__(self):
         model_name = "openai/clip-vit-large-patch14"
 
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.index = None
         self.image_names = []
         self.image_objects = []
 
-        st.write(f"🚀 모델 로딩 중... ({model_name})")
+        st.write(f"🚀 CLIP 모델 로딩 중... ({model_name})")
         self.model = CLIPModel.from_pretrained(model_name)
         self.processor = CLIPProcessor.from_pretrained(model_name)
-        st.success("✅ 모델 로드 완료!")
+        st.success("✅ CLIP 모델 로드 완료!")
 
     def _get_image_embeddings(self, images: list[ImageFile.ImageFile]):
         """여러 이미지의 임베딩을 계산합니다."""
         rgb_images = [img.convert("RGB") for img in images]
         inputs = self.processor(
             images=rgb_images, return_tensors="pt", padding=True
-        ).to(self.device)
+        ).to(device)
 
         features = None
         with torch.inference_mode():
@@ -40,7 +46,7 @@ class ClipImageSearch:
     def _get_text_embeddings(self, texts: list[str]):
         """여러 텍스트의 임베딩을 계산합니다."""
         inputs = self.processor(text=texts, return_tensors="pt", padding=True).to(
-            self.device
+            device
         )
 
         features = None
@@ -78,6 +84,34 @@ class ClipImageSearch:
         return results
 
 
+class LLMTranslator:
+    def __init__(self):
+        model_name = "ibm-granite/granite-4.0-h-micro"
+
+        st.write(f"🚀 언어 모델 로딩 중... ({model_name})")
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForCausalLM.from_pretrained(model_name, device_map=device)
+        self.pipeline = pipeline(
+            "text-generation", model=self.model, tokenizer=self.tokenizer
+        )
+        st.success("✅ 언어 모델 로드 완료!")
+
+    def translate(self, text: str) -> str:
+        chat = [
+            {
+                "role": "system",
+                "content": "You are a translator. Translate the given text into English only, without any additional comments or responses.",
+            },
+            {
+                "role": "user",
+                "content": text,
+            },
+        ]
+
+        outputs = self.pipeline(chat, max_new_tokens=100)
+        return outputs[0]["generated_text"][-1]["content"]
+
+
 def main():
     # ============================================
     # Streamlit UI
@@ -91,7 +125,12 @@ def main():
     def load_app():
         return ClipImageSearch()
 
+    @st.cache_resource
+    def load_translator():
+        return LLMTranslator()
+
     app = load_app()
+    translator = load_translator()
 
     # 파일 업로드
     uploaded_files = st.file_uploader(
@@ -114,12 +153,14 @@ def main():
     # 검색
     if app.index is not None:
         query = st.text_input(
-            "검색할 문장을 입력하세요 (예: 'a cute cat with blue eyes')"
+            "검색할 문장을 입력하세요 (예: '파란 눈을 가진 귀여운 고양이')"
         )
         top_k = st.slider("검색할 상위 이미지 개수", 1, 10, 3)
 
         if st.button("🔎 검색 실행"):
-            results = app.search(query, top_k)
+            translated_query = translator.translate(query)
+            st.write(f"{query} {translated_query}")
+            results = app.search(translated_query, top_k)
             if results:
                 st.write("### 검색 결과:")
                 cols = st.columns(top_k)
