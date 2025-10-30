@@ -10,7 +10,7 @@ Streamlit과 [OpenAI의 CLIP 모델](https://huggingface.co/openai/clip-vit-larg
 - [FAISS](https://github.com/facebookresearch/faiss)를 사용하여 이미지 검색 인덱스 구축
 - 자연어(텍스트)를 이용한 이미지 검색
 - 실시간 유사도 검색 결과 확인
-- LLMTranslator를 활용한 다국어 텍스트 쿼리 지원 ([ibm-granite/granite-4.0-h-micro](https://huggingface.co/ibm-granite/granite-4.0-h-micro) 모델 사용)
+- LLM 모델을 활용한 다국어 텍스트 쿼리 지원 ([ibm-granite/granite-4.0-h-micro](https://huggingface.co/ibm-granite/granite-4.0-h-micro) 모델 사용)
 
 ## 동작 원리
 
