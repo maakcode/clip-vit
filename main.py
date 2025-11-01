@@ -1,59 +1,56 @@
+import os
+from typing import Tuple
 import streamlit as st
-import torch
 import faiss
 from PIL import Image, ImageFile
-from transformers import (
-    CLIPProcessor,
-    CLIPModel,
-)
+from mlx_clip import CLIPModel, CLIPTokenizer, CLIPImageProcessor, convert_clip
 from mlx_lm.generate import generate as mlx_generate
 from mlx_lm.convert import convert as mlx_convert
 from mlx_lm.utils import load as mlx_load
-import os
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
-device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class ClipImageSearch:
     def __init__(self):
         model_name = "openai/clip-vit-large-patch14"
+        model_path = f"./models/{model_name}"
 
         self.index = None
         self.image_names = []
         self.image_objects = []
 
         st.write(f"🚀 CLIP 모델 로딩 중... ({model_name})")
-        self.model = CLIPModel.from_pretrained(model_name)
-        self.processor = CLIPProcessor.from_pretrained(model_name)
+        self.model, self.tokenizer, self.img_processor = self._load(
+            model_name, model_path
+        )
         st.success("✅ CLIP 모델 로드 완료!")
+
+    def _load(
+        self, model_name: str, model_path: str
+    ) -> Tuple[CLIPModel, CLIPTokenizer, CLIPImageProcessor]:
+        if not os.path.isdir(model_path):
+            convert_clip(model_name, model_path)
+
+        model = CLIPModel.from_pretrained(model_path)
+        tokenizer = CLIPTokenizer.from_pretrained(model_path)
+        img_processor = CLIPImageProcessor.from_pretrained(model_path)
+        return model, tokenizer, img_processor
 
     def _get_image_embeddings(self, images: list[ImageFile.ImageFile]):
         """여러 이미지의 임베딩을 계산합니다."""
         rgb_images = [img.convert("RGB") for img in images]
-        inputs = self.processor(
-            images=rgb_images, return_tensors="pt", padding=True
-        ).to(device)
-
-        features = None
-        with torch.inference_mode():
-            features = self.model.get_image_features(**inputs)
-
-        features = features / features.norm(dim=-1, keepdim=True)
-        return features.cpu().numpy().astype("float32")
+        inputs = {
+            "pixel_values": self.img_processor(rgb_images),
+        }
+        return self.model(**inputs).image_embeds
 
     def _get_text_embeddings(self, texts: list[str]):
         """여러 텍스트의 임베딩을 계산합니다."""
-        inputs = self.processor(text=texts, return_tensors="pt", padding=True).to(
-            device
-        )
-
-        features = None
-        with torch.inference_mode():
-            features = self.model.get_text_features(**inputs)
-
-        features = features / features.norm(dim=-1, keepdim=True)
-        return features.cpu().numpy().astype("float32")
+        inputs = {
+            "input_ids": self.tokenizer(texts),
+        }
+        return self.model(**inputs).text_embeds
 
     def build_index(self, uploaded_files):
         """업로드된 이미지로 FAISS 인덱스 생성"""
