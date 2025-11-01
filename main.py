@@ -1,15 +1,14 @@
 import streamlit as st
 import torch
-import numpy as np
 import faiss
 from PIL import Image, ImageFile
 from transformers import (
     CLIPProcessor,
     CLIPModel,
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    pipeline,
 )
+from mlx_lm.generate import generate as mlx_generate
+from mlx_lm.convert import convert as mlx_convert
+from mlx_lm.utils import load as mlx_load
 import os
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -87,14 +86,18 @@ class ClipImageSearch:
 class LLMTranslator:
     def __init__(self):
         model_name = "ibm-granite/granite-4.0-h-micro"
+        model_path = f"./models/{model_name}"
 
         st.write(f"🚀 언어 모델 로딩 중... ({model_name})")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name, device_map=device)
-        self.pipeline = pipeline(
-            "text-generation", model=self.model, tokenizer=self.tokenizer
-        )
+        self._convert(model_name, model_path)
+        self.model, self.tokenizer, *rest = mlx_load(model_path)
         st.success("✅ 언어 모델 로드 완료!")
+
+    def _convert(self, model_name: str, model_path: str):
+        if os.path.isdir(model_path):
+            return
+
+        mlx_convert(model_name, quantize=True, mlx_path=model_path)
 
     def translate(self, text: str) -> str:
         chat = [
@@ -108,8 +111,13 @@ class LLMTranslator:
             },
         ]
 
-        outputs = self.pipeline(chat, max_new_tokens=100)
-        return outputs[0]["generated_text"][-1]["content"]
+        prompt = self.tokenizer.apply_chat_template(chat, add_generation_prompt=True)
+        text = mlx_generate(
+            self.model,
+            self.tokenizer,
+            prompt=prompt,
+        )
+        return text
 
 
 def main():
