@@ -1,7 +1,7 @@
 [project]
-name = "clip-vit"
+name = "deep-image-search"
 version = "0.1.0"
-description = "Add your description here"
+description = "자연어 이미지 검색"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
