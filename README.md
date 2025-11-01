@@ -11,12 +11,15 @@
 - 자연어(텍스트)를 이용한 이미지 검색
 - 실시간 유사도 검색 결과 확인
 - LLM 모델을 활용한 다국어 텍스트 쿼리 지원 ([ibm-granite/granite-4.0-h-micro](https://huggingface.co/ibm-granite/granite-4.0-h-micro) 모델 사용)
+- Apple Silicon에서의 효율적인 실행을 위해 [ml-explore/mlx](https://github.com/ml-explore/mlx), [ml-explore/mlx-lm](https://github.com/ml-explore/mlx-lm) 사용
 
 ## 동작 원리
 
 이 애플리케이션은 CLIP(Contrastive Language-Image Pre-training) 모델을 사용하여 이미지와 텍스트 쿼리의 임베딩(embedding)을 생성합니다. 이 임베딩은 이미지와 텍스트의 의미적 내용을 고차원 벡터 공간에 표현한 것입니다.
 
 생성된 이미지 임베딩은 효율적인 유사도 검색을 위해 FAISS(Facebook AI Similarity Search) 인덱스에 저장됩니다. 사용자가 텍스트 쿼리를 입력하면, LLM 모델(ibm-granite/granite-4.0-h-micro)이 해당 쿼리를 영어로 번역한 후, 번역된 텍스트의 임베딩을 계산하고 FAISS 인덱스 내에서 가장 유사한 이미지 임베딩을 찾아 결과를 반환합니다.
+
+Apple Silicon에서의 효율적인 실행을 위해 모델들이 `mlx`를 기반으로 동작하도록 구현했습니다. 첫 실행시 모델을 다운로드 받은 뒤 자동으로 컨버팅이 이뤄지며 이를 통해 Apple Silicon 하드웨어에서 모델이 네이티브하게 실행됩니다.
 
 ## 개발 환경 설정 및 실행
 
@@ -41,7 +44,7 @@ uv run python -m streamlit run main.py
 
 **참고:**
 
-- 앱을 처음 실행할 때 CLIP 모델을 다운로드하므로 시간이 다소 걸릴 수 있습니다.
+- 앱을 처음 실행할 때 CLIP, LLM 모델을 다운로드하고 컨버팅하므로 시간이 다소 걸릴 수 있습니다.
 - 현재 FAISS 인덱스는 메모리에서만 생성되므로 앱을 재시작하면 사라집니다.
 - macOS에서 발생할 수 있는 `OMP: Error #15` 오류는 `main.py` 스크립트 내에서 관련 환경 변수를 설정하여 해결했습니다.
 
