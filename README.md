@@ -40,6 +40,7 @@ uv run python -m streamlit run main.py
 
 실행 후 터미널에 표시되는 로컬 URL(보통 `http://localhost:8501`)에 접속하여 애플리케이션을 사용할 수 있습니다.
 
+
 ---
 
 **참고:**
@@ -47,6 +48,7 @@ uv run python -m streamlit run main.py
 - 앱을 처음 실행할 때 CLIP, LLM 모델을 다운로드하고 컨버팅하므로 시간이 다소 걸릴 수 있습니다.
 - 현재 FAISS 인덱스는 메모리에서만 생성되므로 앱을 재시작하면 사라집니다.
 - macOS에서 발생할 수 있는 `OMP: Error #15` 오류는 `main.py` 스크립트 내에서 관련 환경 변수를 설정하여 해결했습니다.
+- 프로젝트 변경 이력은 [CHANGELOG.md](./CHANGELOG.md)를 참고하세요.
 
 ---
 
