@@ -12,6 +12,7 @@ dependencies = [
     "mlx-lm>=0.28.3",
     "numpy>=2.3.4",
     "pillow>=11.3.0",
+    "sentence-transformers>=5.1.2",
     "streamlit>=1.50.0",
     "torch>=2.9.0",
     "torchaudio>=2.9.0",
