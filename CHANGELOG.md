@@ -13,3 +13,9 @@
 # [2.0.0](https://github.com/maakcode/deep-image-search/releases/tag/2.0.0)
 
 - apple silicon에서 실행 성능이 낮아 기존 transformer를 cpu에서 mps로 개선하려했지만 어려워서 MLX 기반으로 변경함.
+
+# [3.0.0](https://github.com/maakcode/deep-image-search/releases/tag/3.0.0)
+
+- 다국어 지원을 위해 별도의 LLM으로 번역하는 대신 [sentence-transformers/clip-ViT-B-32-multilingual-v1](https://huggingface.co/sentence-transformers/clip-ViT-B-32-multilingual-v1) 모델을 사용하도록 변경함.
+- 원래는 [google/siglip2-so400m-patch16-naflex](https://huggingface.co/google/siglip2-so400m-patch16-naflex) 사용하려 했으나 이미지와 텍스트의 벡터 유사도가 제대로 계산하지 못하는 문제를 겪음([해당 구현](https://github.com/maakcode/deep-image-search/compare/2.0.0...2.0.0/siglip2))
+- 모델 변경으로 인해 별도의 번역 과정이 필요 없어지면서 구조가 단순해지고 다국어 검색 성능이 개선됨.
